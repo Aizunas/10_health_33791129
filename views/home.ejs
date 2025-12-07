@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+
+<div class="hero">
+    <h1>Welcome to FitTrack</h1>
+    <p class="tagline">Your personal fitness companion</p>
+    
+    <% if (!user) { %>
+        <div class="cta-buttons">
+            <a href="/register" class="btn btn-primary">Get Started</a>
+            <a href="/login" class="btn btn-secondary">Login</a>
+        </div>
+    <% } else { %>
+        <div class="cta-buttons">
+            <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a href="/add-workout" class="btn btn-secondary">Log Workout</a>
+        </div>
+    <% } %>
+</div>
+
+<div class="features">
+    <h2>Features</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Track Workouts</h3>
+            <p>Log your daily exercises, duration, and calories burned</p>
+        </div>
+        <div class="feature-card">
+            <h3>Search History</h3>
+            <p>Find past workouts quickly with our powerful search</p>
+        </div>
+        <div class="feature-card">
+            <h3>View Progress</h3>
+            <p>Monitor your fitness journey with detailed statistics</p>
+        </div>
+        <div class="feature-card">
+            <h3>Stay Motivated</h3>
+            <p>Keep track of your achievements and stay on target</p>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
