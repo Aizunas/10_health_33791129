@@ -45,6 +45,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
 // Routes
 
 // Home page
@@ -87,12 +96,139 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Dashboard (temporary - just to test login)
-app.get('/dashboard', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
+// Register page
+app.get('/register', (req, res) => {
+    res.render('register', { title: 'Register', error: null });
+});
+
+// Register POST
+app.post('/register', async (req, res) => {
+    const { username, email, password, confirmPassword } = req.body;
+    
+    // Validation
+    if (password !== confirmPassword) {
+        return res.render('register', { title: 'Register', error: 'Passwords do not match' });
     }
-    res.send(`<h1>Welcome ${req.session.user.username}!</h1><p>Dashboard coming tomorrow!</p><a href="/logout">Logout</a>`);
+    
+    // Password requirements: 8 chars, 1 lowercase, 1 uppercase, 1 number, 1 special
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.render('register', { 
+            title: 'Register', 
+            error: 'Password must be 8+ characters with uppercase, lowercase, number, and special character' 
+        });
+    }
+    
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        db.query(
+            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+            [username, email, hashedPassword],
+            (err, result) => {
+                if (err) {
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        return res.render('register', { title: 'Register', error: 'Username or email already exists' });
+                    }
+                    return res.render('register', { title: 'Register', error: 'Registration failed' });
+                }
+                
+                req.session.user = { id: result.insertId, username };
+                res.redirect('/dashboard');
+            }
+        );
+    } catch (err) {
+        res.render('register', { title: 'Register', error: 'Registration failed' });
+    }
+});
+
+// Dashboard 
+app.get('/dashboard', requireAuth, (req, res) => {
+    const userId = req.session.user.id;
+    
+    // Get recent workouts
+    db.query(
+        'SELECT * FROM workouts WHERE user_id = ? ORDER BY workout_date DESC LIMIT 5',
+        [userId],
+        (err, workouts) => {
+            if (err) {
+                return res.render('dashboard', { title: 'Dashboard', workouts: [], stats: {} });
+            }
+            
+            // Get stats
+            db.query(
+                'SELECT COUNT(*) as total_workouts, SUM(duration) as total_minutes, SUM(calories_burned) as total_calories FROM workouts WHERE user_id = ?',
+                [userId],
+                (err, stats) => {
+                    res.render('dashboard', { 
+                        title: 'Dashboard', 
+                        workouts, 
+                        stats: stats[0] || {} 
+                    });
+                }
+            );
+        }
+    );
+});
+
+// Add workout page
+app.get('/add-workout', requireAuth, (req, res) => {
+    db.query('SELECT * FROM workout_types ORDER BY name', (err, types) => {
+        res.render('add-workout', { 
+            title: 'Add Workout', 
+            workoutTypes: types || [],
+            error: null 
+        });
+    });
+});
+
+// Add workout POST
+app.post('/add-workout', requireAuth, (req, res) => {
+    const { workout_type, duration, calories_burned, distance, notes, workout_date } = req.body;
+    const userId = req.session.user.id;
+    
+    db.query(
+        'INSERT INTO workouts (user_id, workout_type, duration, calories_burned, distance, notes, workout_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [userId, workout_type, duration, calories_burned || null, distance || null, notes, workout_date],
+        (err, result) => {
+            if (err) {
+                db.query('SELECT * FROM workout_types ORDER BY name', (err, types) => {
+                    return res.render('add-workout', { 
+                        title: 'Add Workout', 
+                        workoutTypes: types || [],
+                        error: 'Failed to add workout' 
+                    });
+                });
+            } else {
+                res.redirect('/dashboard');
+            }
+        }
+    );
+});
+
+// Search page
+app.get('/search', requireAuth, (req, res) => {
+    res.render('search', { title: 'Search Workouts', workouts: [], query: '' });
+});
+
+// Search POST
+app.post('/search', requireAuth, (req, res) => {
+    const { query } = req.body;
+    const userId = req.session.user.id;
+    
+    const searchQuery = `%${query}%`;
+    
+    db.query(
+        'SELECT * FROM workouts WHERE user_id = ? AND (workout_type LIKE ? OR notes LIKE ?) ORDER BY workout_date DESC',
+        [userId, searchQuery, searchQuery],
+        (err, workouts) => {
+            res.render('search', { 
+                title: 'Search Workouts', 
+                workouts: workouts || [], 
+                query 
+            });
+        }
+    );
 });
 
 // Logout

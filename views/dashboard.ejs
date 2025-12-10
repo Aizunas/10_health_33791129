@@ -1,0 +1,57 @@
+<%- include('partials/header') %>
+
+<div class="content-page">
+    <h1>Dashboard</h1>
+    <p>Welcome back, <%= user.username %>!</p>
+    <link rel="stylesheet" href="main.css">
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Workouts</h3>
+            <p class="stat-number"><%= stats.total_workouts || 0 %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Minutes</h3>
+            <p class="stat-number"><%= stats.total_minutes || 0 %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Calories Burned</h3>
+            <p class="stat-number"><%= stats.total_calories || 0 %></p>
+        </div>
+    </div>
+    
+    <section class="recent-workouts">
+        <h2>Recent Workouts</h2>
+        
+        <% if (workouts.length === 0) { %>
+            <p>No workouts logged yet. <a href="/add-workout">Add your first workout</a>!</p>
+        <% } else { %>
+            <table class="workout-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Duration (min)</th>
+                        <th>Distance (km)</th>
+                        <th>Calories</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% workouts.forEach(workout => { %>
+                        <tr>
+                            <td><%= new Date(workout.workout_date).toLocaleDateString() %></td>
+                            <td><%= workout.workout_type %></td>
+                            <td><%= workout.duration %></td>
+                            <td><%= workout.distance || '-' %></td>
+                            <td><%= workout.calories_burned || '-' %></td>
+                            <td><%= workout.notes || '-' %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </section>
+</div>
+
+<%- include('partials/footer') %>

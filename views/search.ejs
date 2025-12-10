@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<div class="content-page">
+    <h1>Search Workouts</h1>
+    
+    <form method="POST" action="/search" class="search-form">
+        <div class="form-group">
+            <label for="query">Search by workout type or notes</label>
+            <input type="text" id="query" name="query" value="<%= query %>" placeholder="e.g., Running, park, swimming" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    
+    <% if (query) { %>
+        <h2>Search Results for "<%= query %>"</h2>
+        
+        <% if (workouts.length === 0) { %>
+            <p>No workouts found matching your search.</p>
+        <% } else { %>
+            <p>Found <%= workouts.length %> workout(s)</p>
+            <table class="workout-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Duration (min)</th>
+                        <th>Distance (km)</th>
+                        <th>Calories</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% workouts.forEach(workout => { %>
+                        <tr>
+                            <td><%= new Date(workout.workout_date).toLocaleDateString() %></td>
+                            <td><%= workout.workout_type %></td>
+                            <td><%= workout.duration %></td>
+                            <td><%= workout.distance || '-' %></td>
+                            <td><%= workout.calories_burned || '-' %></td>
+                            <td><%= workout.notes || '-' %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>
