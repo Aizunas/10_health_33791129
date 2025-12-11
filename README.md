@@ -1,4 +1,4 @@
-# FitTrack - Fitness Tracking Application
+# MoveMore - Fitness Tracking Application
 
 ## Installation
 
