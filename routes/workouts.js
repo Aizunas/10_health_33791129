@@ -54,39 +54,58 @@ module.exports = (db) => {
 
     //add workout POST
     router.post('/add-workout', requireAuth, (req, res) => {
-    console.log('=== ADD WORKOUT DEBUG ===');
-    console.log('1. Request body:', req.body);
-    console.log('2. User session:', req.session.user);
-    
-    const { workout_type, duration, calories_burned, distance, notes, workout_date } = req.body;
-    const userId = req.session.user.id;
-    
-    console.log('3. Extracted values:');
-    console.log('   workout_type:', workout_type);
-    console.log('   duration:', duration);
-    console.log('   workout_date:', workout_date);
-    console.log('   userId:', userId);
-    
-    db.query(
-        'INSERT INTO workouts (user_id, workout_type, duration, calories_burned, distance, notes, workout_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [userId, workout_type, duration, calories_burned || null, distance || null, notes, workout_date],
-        (err, result) => {
-            if (err) {
-                console.error('4. DATABASE ERROR:', err.message);
-                db.query('SELECT * FROM workout_types ORDER BY name', (err, types) => {
-                    return res.render('add-workout', { 
-                        title: 'Add Workout', 
-                        workoutTypes: types || [],
-                        error: 'Failed to add workout: ' + err.message 
+        const { workout_type, duration, calories_burned, distance, notes, workout_date } = req.body;
+        const userId = req.session.user.id;
+        
+        db.query(
+            'INSERT INTO workouts (user_id, workout_type, duration, calories_burned, distance, notes, workout_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [userId, workout_type, duration, calories_burned || null, distance || null, notes, workout_date],
+            (err, result) => {
+                if (err) {
+                    db.query('SELECT * FROM workout_types ORDER BY name', (err, types) => {
+                        return res.render('add-workout', { 
+                            title: 'Add Workout', 
+                            workoutTypes: types || [],
+                            error: 'Failed to add workout: ' + err.message 
+                        });
                     });
+                } else {
+                    res.redirect('/dashboard');
+                }
+            }
+        );
+    });
+
+    //view all workouts 
+    router.get('/all-workouts', requireAuth, (req, res) => {
+        const userId = req.session.user.id;
+        
+        db.query(
+            'SELECT * FROM workouts WHERE user_id = ? ORDER BY workout_date DESC',
+            [userId],
+            (err, workouts) => {
+                res.render('all-workouts', { 
+                    title: 'All Workouts', 
+                    workouts: workouts || []
                 });
-            } else {
-                console.log('5. SUCCESS! Workout ID:', result.insertId);
+            }
+        );
+    });
+
+    //delete workout 
+    router.post('/delete-workout/:id', requireAuth, (req, res) => {
+        const workoutId = req.params.id;
+        const userId = req.session.user.id;
+        
+        //ensure user owns this workout
+        db.query(
+            'DELETE FROM workouts WHERE id = ? AND user_id = ?',
+            [workoutId, userId],
+            (err, result) => {
                 res.redirect('/dashboard');
             }
-        }
-    );
-});
+        );
+    });
 
     //search page
     router.get('/search', requireAuth, (req, res) => {

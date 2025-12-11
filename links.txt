@@ -1,1 +1,17 @@
 home= http://www.doc.gold.ac.uk/usr/313/
+
+
+
+
+
+
+local testing:
+
+home=http://localhost:8000/
+about=http://localhost:8000/about
+login=http://localhost:8000/login
+register=http://localhost:8000/register
+dashboard=http://localhost:8000/dashboard
+add_workout=http://localhost:8000/add-workout
+search=http://localhost:8000/search
+all_workouts=http://localhost:8000/all-workouts

@@ -26,16 +26,16 @@ db.connect((err) => {
 
 //middleware config
 
-// Parse URL-encoded bodies (form data)
+//parse URL-encoded bodies (form data)
 app.use(express.urlencoded({ extended: true }));
 
-// Parse JSON bodies
+//parse JSON bodies
 app.use(express.json());
 
-// Serve static files from public directory
+//serve static files from public directory
 app.use(express.static('public'));
 
-// Configure session management
+//configure session management
 app.use(session({
     secret: 'fitness-tracker-secret-2024',
     resave: false,
@@ -43,10 +43,10 @@ app.use(session({
     cookie: { maxAge: 3600000 } // 1 hour
 }));
 
-// Set EJS as view engine
+//set EJS as view engine
 app.set('view engine', 'ejs');
 
-// Make user object available to all views
+//make user object available to all views
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     next();

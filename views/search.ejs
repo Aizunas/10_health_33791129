@@ -6,7 +6,7 @@
     <form method="POST" action="/search" class="search-form">
         <div class="form-group">
             <label for="query">Search by workout type or notes</label>
-            <input type="text" id="query" name="query" value="<%= query %>" placeholder="e.g., Running, park, swimming" required>
+            <input type="text" id="query" name="query" value="<%= query %>" placeholder="e.g. running, park, swimming" required>
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
@@ -38,6 +38,11 @@
                             <td><%= workout.distance || '-' %></td>
                             <td><%= workout.calories_burned || '-' %></td>
                             <td><%= workout.notes || '-' %></td>
+                            <td> 
+                                <form method="POST" action="/delete-workout/<%= workout.id %>" style="display: inline;">
+                                    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this workout?')">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>

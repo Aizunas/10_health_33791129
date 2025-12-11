@@ -182,7 +182,7 @@ main {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #D4AF37 0%, #CE8946 100%); 
+    background: #BDB76B; 
     color: white;
     padding: 1.5rem;
     border-radius: 10px;
@@ -242,7 +242,7 @@ main {
     margin-top: 1rem;
 }
 
-/* Tables */
+/* tables */
 .workout-table {
     width: 100%;
     border-collapse: collapse;
@@ -293,6 +293,27 @@ main {
     margin-top: 3rem;
 }
 
+    /*delete Button */
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+/*adjust table cell */
+.workout-table td form {
+    margin: 0;
+}
+
 /* responsive */
 @media (max-width: 768px) {
     .nav-links {
@@ -316,4 +337,5 @@ main {
     .workout-table td {
         padding: 0.5rem;
     }
+
 }
