@@ -57,7 +57,7 @@ mysql -u root -p < insert_test_data.sql
 node index.js
 ```
 
-7. Access the application at `http://localhost:8000`
+7. Access the application at `http://localhost:8000` or `http://www.doc.gold.ac.uk/usr/313/`
 
 ## Default Login Credentials
 
